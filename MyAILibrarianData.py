@@ -2,6 +2,7 @@
 from __future__ import annotations
 from typing import Optional, Any
 
+# TODO: check code with PythonTA once this is done
 
 class Book:
     """A Book object that represents a book's data from GoodReads.
