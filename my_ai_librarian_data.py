@@ -50,6 +50,11 @@ class Book:
         self.book_url = book_url
         self.image_url = image_url
 
+    def __str__(self) -> str:
+        """Represent a book as its title.
+        """
+        return self.title
+
     def similar_books(self, library: set[Book]) -> list[Book]:
         """Return a list of books in library ordered by decreasing similarity to self
 
@@ -239,7 +244,8 @@ class Tree:
         """Get all books that satisfy the given sequence.
         The filter sequence is a binary sequence in the format [<rating 1>, <rating 2>, ... <rating 5>,
         <length 0>, ... length<2>, <genre 2>, <genre 3> ...]
-        Note that genre number corresponds to the genre in the genre mapping which starts at index 2.
+        Note that genre number corresponds to the genre in the genre mapping which starts at index 2, however,
+        the index of the genre in the sequence is shifted by 6 to the right.
         If any of these categories is selected, they will have a value of 1 and 0 otherwise.
         The returned set of books will return all books that have the selected categories.
         If more than one rating or length filter is selected, each book will have one of the selected ratings
