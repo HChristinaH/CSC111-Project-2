@@ -240,8 +240,7 @@ class Tree:
 
         return books
         
-    def get_books_filter(self, filter_sequence: list[int], sort_by: str, library: Library,
-                         strictness: int = 0, height: int = 0) -> set[Book]:
+    def get_books_filter(self, filter_sequence: list[int], sort_by: str, library: Library, height: int = 0) -> set[Book]:
         """New version of get_books_filter"""
 
     
