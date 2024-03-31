@@ -83,14 +83,14 @@ class Book:
         else:
             return len(set.intersection(self.genres, other.genres)) / len(set.union(self.genres, other.genres))
 
-    def average_similarity_score(self, library: Library) -> float:
+    def average_similarity_score(self, library: set[Book]) -> float:
         """Return the average similarity score of a book to all the books in the library
         Return 0.0 if there are no books in the library.
         """
         total_score = 0.0
         total_count = 0
 
-        for saved_book in library.saved_books:
+        for saved_book in library:
             total_score += self.similarity_score(saved_book)
             total_count += 1
 
@@ -212,55 +212,14 @@ class Tree:
                 self._subtrees.append(tree)
                 tree.insert_sequence(sequence[1:])
 
-    def get_books(self, sequence: list[int]) -> set[Book]:
-        """Return the set of all the books that correspond to the given sequence
-
-        >>> book_tree = Tree(0, [])
-        >>> book_tree.insert_sequence([3, 2, 1])
-        >>> book_tree.get_books([3, 2]) == {1}
-        True
-        >>> book_tree.get_books([3, 2, 1])
-        set()
+    def get_books_filter_sort(self, filter_sequence, sort_by: str, library: set[Book]) -> list[Book]:
+        """Get a list of filtered and sorted books.
         """
-        books = set()
-        if not sequence:
-            if not self._subtrees:
-                return books
-            else:
-                return {tree._root for tree in self._subtrees}
-        else:
-            for t in self._subtrees:
-                if sequence[0] == t._root:
-                    return t.get_books(sequence[1:])
+        book_list = self._get_books_filter(filter_sequence)
+        sort_books_by(book_list, sort_by, library)
+        return book_list
 
-            return books
-
-    def get_books_differ_by(self, sequence: list[int], n: int) -> Optional[set[Book]]:
-        """Return a set of all books with a sequence that differs from the given sequence by at most n levels.
-
-        Preconditions:
-            - n >= 0
-        """
-
-        if not sequence:
-            if not self._subtrees:
-                return set()
-            else:
-                return {tree._root for tree in self._subtrees}
-        elif n == 0:
-            return self.get_books(sequence)
-        else:
-            books = set()
-            for t in self._subtrees:
-                if t._root == sequence[0]:
-                    books = books.union(t.get_books_differ_by(sequence[1:], n))
-                else:
-                    books = books.union(t.get_books_differ_by(sequence[1:], n - 1))
-
-        return books
-
-    def get_books_filter(self, filter_sequence: list[int], sort_by: str, library: Library,
-                         height: int = 0) -> list[Book]:
+    def _get_books_filter(self, filter_sequence: list[int], height: int = 0) -> list[Book]:
         """Get all books that satisfy the given sequence sorted by the given category.
         The filter sequence is a binary sequence in the format [<rating 1>, <rating 2>, ... <rating 5>,
         <length 0>, ... length<2>, <genre 0>, <genre 1> ...]
@@ -277,16 +236,16 @@ class Tree:
         differentiate rating, length, and genre categories.
 
         Preconditions:
-            - sort_by in {"Similarity", "Popularity", "Average rating (high to low)",
-            "Author (A-Z)", "Publication year"}
+            - sort_by in {"Similarity (decreasing)", "Popularity (decreasing)", "Average rating (high to low)",
+                         "Author (A-Z)", "Publication year (increasing)"}
         """
         if height == 0:
             # Check indices 0 - 4 for rating
-            return self.get_books_filter_helper(filter_sequence, sort_by, library, height, 5)
+            return self._get_books_filter_helper(filter_sequence, height, 5)
 
         elif height == 1:
             # Check indices 5 - 7 for length filter
-            return self.get_books_filter_helper(filter_sequence, sort_by, library, height, 3)
+            return self._get_books_filter_helper(filter_sequence, height, 3)
 
         # Check indices 8+ for genre filters
         else:
@@ -295,23 +254,21 @@ class Tree:
                 if not self._subtrees:
                     return []
                 else:
-                    books = {tree._root for tree in self._subtrees}
-                    return sort_books_by(books, sort_by, library)
+                    return [tree._root for tree in self._subtrees]
 
             books = []
             if filter_sequence[0] == 0:
                 for t in self._subtrees:
-                    books += t.get_books_filter(filter_sequence[1:], sort_by, library, height + 1)
+                    books += t._get_books_filter(filter_sequence[1:], height + 1)
             else:
-                sublists = [subtree.get_books_filter(filter_sequence[1:], sort_by, library, height + 1) for subtree in
+                sublists = [subtree._get_books_filter(filter_sequence[1:], height + 1) for subtree in
                             self._subtrees if subtree._root == 1]
-                for lst in sublists:
-                    books += lst
+                for sublist in sublists:
+                    books += sublist
 
             return books
 
-    def get_books_filter_helper(self, filter_sequence: list[int], sort_by: str, library: Library,
-                                height: int, n: int) -> list[Book]:
+    def _get_books_filter_helper(self, filter_sequence: list[int], height: int, n: int) -> list[Book]:
         """Handles the base case of rating and length filters, where n is the number of options in each category.
         For example, n = 5 if filter_sequence is on rating, and n = 3 if it is on length.
         Note that there is an off-by-one error since the indices of filter sequence begin from 0
@@ -327,12 +284,12 @@ class Tree:
 
         if not filters:
             for t in self._subtrees:
-                books += t.get_books_filter(filter_sequence[n:], sort_by, library, height + 1)
+                books += t._get_books_filter(filter_sequence[n:], height + 1)
             return books
         else:
             for t in self._subtrees:
                 if t._root in filters:
-                    books += t.get_books_filter(filter_sequence[n:], sort_by, library, height + 1)
+                    books += t._get_books_filter(filter_sequence[n:], height + 1)
             return books
 
 
@@ -364,34 +321,6 @@ def get_genres(genre_file: str) -> tuple[list[str], dict[str, set[str]]]:
                     index += 1
 
     return genre_list, book_genres
-
-
-class Library:
-    """A libary that contains a collection of books saved by the user
-    """
-    # Instance Attributes:
-    #   - saved_books: set of all books in the library
-
-    saved_books: set[Book]
-
-    def __init__(self) -> None:
-        """Initialize a library object
-        """
-        self.saved_books = set()
-
-    def add(self, book: Book) -> None:
-        """Save a new book
-        """
-        self.saved_books.add(book)
-
-    def remove(self, book: Book) -> None:
-        """Remove a book from the library.
-        Raise ValueError if the book is not in the library
-        """
-        if book in self.saved_books:
-            self.saved_books.remove(book)
-        else:
-            raise ValueError
 
 
 def load_authors(authors_file: str) -> dict[str, str]:
@@ -475,42 +404,42 @@ def get_ratings_count(data: str) -> int:
         return int(data)
 
 
-def sort_books_by(books: set[Book], sort_by: str, library: Optional[Library] = None) -> list[Book]:
+def sort_books_by(book_list: list[Book], sort_by: str, library: set[Book]) -> None:
     """Sorts a set of books by the given category.
+    This method mutates book_list.
+    If sort_by == 'Author (A-Z)', sorts by the first author's full name.
     Preconditions:
-        - sort_by != "Similarity" or library is not None
-        - sort_by in {"Similarity", "Popularity", "Average rating (high to low)", "Author (A-Z)",
-                        "Publication year"}
+        - sort_by != "Similarity" or library != set()
+        - sort_by in {"Similarity (decreasing)", "Popularity (decreasing)", "Average rating (high to low)",
+                     "Author (A-Z)", "Publication year (increasing)"}
     """
-    if sort_by == "Similarity":
-        return sort_by_similarity(books, library)
+    if sort_by == 'Similarity (decreasing)':
+        sort_by_similarity(book_list, library)
 
-    book_list = list(books)
-    if sort_by == "Popularity":
+    elif sort_by == 'Popularity (decreasing)':
         book_list.sort(key=lambda book: book.ratings_count, reverse=True)
 
-    elif sort_by == "Average rating (high to low)":
+    elif sort_by == 'Average rating (high to low)':
         book_list.sort(key=lambda book: book.average_rating, reverse=True)
 
-    elif sort_by == "Author (A-Z)":
+    elif sort_by == 'Author (A-Z)':
         book_list.sort(key=lambda book: book.authors[0])
 
     else:
-        book_list.sort(key=lambda book: book.pub_year, reverse=True)
-
-    return book_list
+        book_list.sort(key=lambda book: book.pub_year)
 
 
-def sort_by_similarity(books: set[Book], library: Library) -> list[Book]:
-    """Sort books by descending average similarity to books in the library
+def sort_by_similarity(book_list: list[Book], library: set[Book]) -> None:
+    """Sort books by descending average similarity to books in the library.
+    This method mutates book_list.
     """
     similarity_score_map = []  # each element is a list containing book and its average similarity score to library
-    for book in books:
+    for book in book_list:
         similarity_score_map.append([book, book.average_similarity_score(library)])
 
     similarity_score_map.sort(key=lambda x: x[1], reverse=True)
 
-    return [row[0] for row in similarity_score_map]
+    book_list[:] = [row[0] for row in similarity_score_map]
 
 
 def get_authors(data: list[dict[str, str]], authors: dict[str, str]) -> list[str]:
@@ -543,7 +472,7 @@ def load_tree(genre_list: list[str], books: set[Book]) -> Tree:
         at index n - 3
     >>> genre_list, book_genres = get_genres("goodreads_book_genres_initial.json")
     >>> authors_mapping = load_authors("goodreads_book_authors.json")
-    >>> books = load_books(book_genres, authors_mapping, "goodreads_books_small.json")
+    >>> books = load_books(book_genres, authors_mapping, "goodreads_books_medium.json")
     >>> tree = load_tree(genre_list, books)
     """
 
