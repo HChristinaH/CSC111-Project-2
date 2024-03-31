@@ -239,7 +239,12 @@ class Tree:
                     books = books.union(t.get_books_differ_by(sequence[1:], n - 1))
 
         return books
+        
+    def get_books_filter(self, filter_sequence: list[int], sort_by: str, library: Library,
+                         strictness: int = 0, height: int = 0) -> set[Book]:
+        """New version of get_books_filter"""
 
+    
     def get_books_filter(self, filter_sequence: list[int], height: int = 0) -> set[Book]:
         """Get all books that satisfy the given sequence.
         The filter sequence is a binary sequence in the format [<rating 1>, <rating 2>, ... <rating 5>,
@@ -339,6 +344,32 @@ def get_genres(genre_file: str) -> tuple[dict[str, int], dict[str, set[str]]]:
 
     return genre_mapping, book_genres
 
+class Library:
+    """A libary that contains a collection of books saved by the user
+    """
+    # Instance Attributes:
+    #   - saved_books: set of all books in the library
+
+    saved_books: set[Book]
+
+    def __init__(self) -> None:
+        """Initialize a library object
+        """
+        self.saved_books = set()
+
+    def add(self, book: Book) -> None:
+        """Save a new book
+        """
+        self.saved_books.add(book)
+
+    def remove(self, book: Book) -> None:
+        """Remove a book from the library.
+        Raise ValueError if the book is not in the library
+        """
+        if book in self.saved_books:
+            self.saved_books.remove(book)
+        else:
+            raise ValueError
 
 def load_authors(authors_file: str) -> dict[str, str]:
     """Return a mapping of author_id to author name.
@@ -420,6 +451,14 @@ def get_authors(data: list[dict[str, str]], authors: dict[str, str]) -> list[str
         result.append(authors[author["author_id"]])
     return result
 
+def get_genre_list(genre_mapping: dict[str, int]) -> list[str]:
+    """Return a list of genres in increasing order of index from the genre mapping
+    """
+    mapping_to_list = [[genre, genre_mapping[genre]] for genre in genre_mapping]
+    mapping_to_list.sort(key = lambda x: x[1])
+    genre_list = [genre[0] for genre in mapping_to_list]
+
+    return genre_list
 
 def load_tree(genre_mapping: dict[str: int], books: set[Book]) -> Tree:
     """Create a tree from the genre mapping and set of books.
