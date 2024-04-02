@@ -174,6 +174,19 @@ class Tree:
                 str_so_far += subtree._str_indented(depth + 1)
             return str_so_far
 
+    def height(self) -> int:
+        """Return the height of the tree
+        >>> t = Tree(0, [])
+        >>> t. insert_sequence([1, 0])
+        >>> t.insert_sequence([1, 0, 1])
+        >>> t.height()
+        3
+        """
+        if not self._subtrees:
+            return 0
+        else:
+            return 1 + max([subtree.height() for subtree in self._subtrees])
+
     def is_empty(self) -> bool:
         """Return whether this tree is empty.
 
@@ -214,6 +227,8 @@ class Tree:
 
     def get_books_filter_sort(self, filter_sequence, sort_by: str, library: set[Book]) -> list[Book]:
         """Get a list of filtered and sorted books.
+        Preconditions:
+            - len(filter_sequence) == self.height() - 1
         """
         book_list = self._get_books_filter(filter_sequence)
         sort_books_by(book_list, sort_by, library)
@@ -482,3 +497,8 @@ def load_tree(genre_list: list[str], books: set[Book]) -> Tree:
         book_tree.insert_sequence(sequence)
 
     return book_tree
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
