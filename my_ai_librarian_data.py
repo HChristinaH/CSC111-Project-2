@@ -13,8 +13,8 @@ class Book:
     #     - title: title of the book
     #     - authors: list of authors
     #         [''] if no information is available
-    #     - genre_shelves: a dictionary mapping each genre to its frequency of being shelved
-    #     - all_shelves: a dictionary mapping each shelf to its frequency
+    #     - genres: a set of genres that the book has been shelved under
+    #     - tags: a set of all shelves of the book
     #     - average_rating: the average rating of a book from 1.0 to 5.0
     #         -1 if there is no information
     #     - ratings_count: the number of ratings
@@ -33,6 +33,7 @@ class Book:
     title: str
     authors: list[str]
     genres: set[str]
+    tags: set[str]
     average_rating: float
     ratings_count: int
     length: int
@@ -41,13 +42,14 @@ class Book:
     book_url: str
     image_url: str
 
-    def __init__(self, isbn: str, title: str, authors: list[str], genres: set[str], average_rating: float,
-                 ratings_count: int, length: int, description: str, pub_year: str, book_url: str,
-                 image_url: str) -> None:
+    def __init__(self, isbn: str, title: str, authors: list[str], genres: set[str], tags: set[str],
+                 average_rating: float, ratings_count: int, length: int, description: str, pub_year: str,
+                 book_url: str, image_url: str) -> None:
         self.isbn = isbn
         self.title = title
         self.authors = authors
         self.genres = genres
+        self.tags = tags
         self.average_rating = average_rating
         self.ratings_count = ratings_count
         self.length = length
@@ -74,14 +76,16 @@ class Book:
         return [row[0] for row in scores]
 
     def similarity_score(self, other: Book) -> float:
-        """Calculate the similarity score between self and other book based on its genres.
+        """Calculate the similarity score between self and other book based on its tags and genres.
         Similarity formula is calculated by common genres divided by total genres.
         """
 
-        if len(self.genres) == 0 or len(other.genres) == 0:
+        if len(self.tags) == 0 or len(other.tags) == 0:
             return 0
         else:
-            return len(set.intersection(self.genres, other.genres)) / len(set.union(self.genres, other.genres))
+            shelves1 = set.union(self.tags, self.genres)
+            shelves2 = set.union(other.tags, other.genres)
+            return len(set.intersection(shelves1, shelves2)) / len(set.union(shelves1, shelves2))
 
     def average_similarity_score(self, library: set[Book]) -> float:
         """Return the average similarity score of a book to all the books in the library
@@ -365,6 +369,7 @@ def load_books(book_genres: dict[str, set[str]], authors_mapping: dict[str, str]
             title = entry["title"]
             authors = get_authors(entry["authors"], authors_mapping)
             genres = book_genres[book_id]
+            tags = get_tags(entry["popular_shelves"])
             average_rating = get_average_rating(entry["average_rating"])
             ratings_count = get_ratings_count(entry["ratings_count"])
             length = get_length(entry["num_pages"])
@@ -372,11 +377,21 @@ def load_books(book_genres: dict[str, set[str]], authors_mapping: dict[str, str]
             pub_year = entry["publication_year"]
             book_url = entry["url"]
             image_url = entry["image_url"]
-            book = Book(isbn, title, authors, genres, average_rating, ratings_count, length, description, pub_year,
-                        book_url, image_url)
+            book = Book(isbn, title, authors, genres, tags, average_rating, ratings_count, length, description,
+                        pub_year, book_url, image_url)
             books.add(book)
 
     return books
+
+
+def get_tags(data: list[dict[str, str]]) -> set[str]:
+    """Return a set of shelf names from the popular shelves data of a book.
+    An example data is: [{"count": "3", "name": "to-read"}, {"count": "1", "name": "p"}]
+    """
+    tags = set()
+    for tag in data:
+        tags.add(tag["name"])
+    return tags
 
 
 def get_length(num_pages: str) -> 0:
@@ -424,7 +439,7 @@ def sort_books_by(book_list: list[Book], sort_by: str, library: set[Book]) -> No
     This method mutates book_list.
     If sort_by == 'Author (A-Z)', sorts by the first author's full name.
     Preconditions:
-        - sort_by != "Similarity" or library != set()
+        - sort_by != "Similarity (decreasing)" or library != set()
         - sort_by in {"Similarity (decreasing)", "Popularity (decreasing)", "Average rating (high to low)",
                      "Author (A-Z)", "Publication year (increasing)"}
     """
@@ -497,8 +512,3 @@ def load_tree(genre_list: list[str], books: set[Book]) -> Tree:
         book_tree.insert_sequence(sequence)
 
     return book_tree
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
