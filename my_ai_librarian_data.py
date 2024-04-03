@@ -87,7 +87,7 @@ class Book:
             shelves2 = set.union(other.tags, other.genres)
             return len(set.intersection(shelves1, shelves2)) / len(set.union(shelves1, shelves2))
 
-    def average_similarity_score(self, library: set[Book]) -> float:
+    def average_similarity_score(self, library: list[Book]) -> float:
         """Return the average similarity score of a book to all the books in the library
         Return 0.0 if there are no books in the library.
         """
@@ -229,7 +229,7 @@ class Tree:
                 self._subtrees.append(tree)
                 tree.insert_sequence(sequence[1:])
 
-    def get_books_filter_sort(self, filter_sequence, sort_by: str, library: set[Book]) -> list[Book]:
+    def get_books_filter_sort(self, filter_sequence, sort_by: str, library: list[Book]) -> list[Book]:
         """Get a list of filtered and sorted books.
         Preconditions:
             - len(filter_sequence) == self.height() - 1
@@ -434,7 +434,7 @@ def get_ratings_count(data: str) -> int:
         return int(data)
 
 
-def sort_books_by(book_list: list[Book], sort_by: str, library: set[Book]) -> None:
+def sort_books_by(book_list: list[Book], sort_by: str, library: list[Book]) -> None:
     """Sorts a set of books by the given category.
     This method mutates book_list.
     If sort_by == 'Author (A-Z)', sorts by the first author's full name.
@@ -459,7 +459,7 @@ def sort_books_by(book_list: list[Book], sort_by: str, library: set[Book]) -> No
         book_list.sort(key=lambda book: book.pub_year)
 
 
-def sort_by_similarity(book_list: list[Book], library: set[Book]) -> None:
+def sort_by_similarity(book_list: list[Book], library: list[Book]) -> None:
     """Sort books by descending average similarity to books in the library.
     This method mutates book_list.
     """
