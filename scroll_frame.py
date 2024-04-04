@@ -1,3 +1,7 @@
+"""This file creates the scrollable page that is shown on the main page, the search page, and the saved page
+
+Copyright 2024 Areesha Abidi
+""" 
 import tkinter as tk
 from tkinter import Scrollbar
 from PIL import Image, ImageTk
