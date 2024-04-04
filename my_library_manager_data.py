@@ -1,5 +1,7 @@
-"""This program contains classes for book and tree data structures used in the My AI Librarian program.
-It also contains methods for loading these data structures from data files."""
+"""This program contains classes for book and tree data structures used in My Library Manger project.
+It also contains methods for loading these data structures from data files.
+Copyright 2024 Christina Huang
+"""
 from __future__ import annotations
 from typing import Optional, Any
 import json
