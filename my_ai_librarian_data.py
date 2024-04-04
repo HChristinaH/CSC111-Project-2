@@ -364,18 +364,18 @@ def load_books(book_genres: dict[str, set[str]], authors_mapping: dict[str, str]
         for line in file:
             entry = json.loads(line)
             book_id = entry["book_id"]
-            isbn = get_isbn(entry["isbn"])
-            title = entry["title"]
+            isbn = get_str(entry["isbn"])
+            title = get_str(entry["title"])
             authors = get_authors(entry["authors"], authors_mapping)
             genres = book_genres[book_id]
             tags = get_tags(entry["popular_shelves"])
             average_rating = get_average_rating(entry["average_rating"])
             ratings_count = get_ratings_count(entry["ratings_count"])
             length = get_length(entry["num_pages"])
-            description = entry["description"]
-            pub_year = entry["publication_year"]
-            book_url = entry["url"]
-            image_url = entry["image_url"]
+            description = get_str(entry["description"])
+            pub_year = get_str(entry["publication_year"])
+            book_url = get_str(entry["url"])
+            image_url = get_str(entry["image_url"])
             book = Book(isbn, title, authors, genres, tags, average_rating, ratings_count, length, description,
                         pub_year, book_url, image_url)
             books.add(book)
@@ -383,8 +383,9 @@ def load_books(book_genres: dict[str, set[str]], authors_mapping: dict[str, str]
     return books
 
 
-def get_isbn(data: str) -> str:
-    """Return the isbn of a book from the data given as string
+def get_str(data: str) -> str:
+    """Return the string attribute from of a book from the data given as string
+    Return "No information available" if the data is an empty string.
     """
     if data == '':
         return "No information available"
