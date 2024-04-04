@@ -1,3 +1,7 @@
+"""This file creates all the elements that are on the top of the window. Major elements include the search bar and the saved books button
+
+Copyright 2024 Areesha Abidi
+"""
 import tkinter as tk
 from ttkbootstrap import ttk
 from bookpage import saved_books_library
