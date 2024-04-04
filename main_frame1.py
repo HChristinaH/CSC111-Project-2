@@ -1,7 +1,7 @@
 import tkinter as tk
 from ttkbootstrap import ttk
 from bookpage import saved_books_library
-from VScrollProper import ScrollingFrame
+from scroll_frame import ScrollingFrame
 from gettingdata import books_to_display as all_books
 
 
