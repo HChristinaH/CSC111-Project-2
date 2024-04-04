@@ -29,8 +29,8 @@ class Book:
 
     isbn: str
     title: str
-    authors: list[str] | str
-    genres: set[str] | str
+    authors: list[str]
+    genres: set[str]
     tags: set[str] | str
     average_rating: float | str
     ratings_count: int | str
@@ -357,7 +357,7 @@ def load_books(book_genres: dict[str, set[str]], authors_mapping: dict[str, str]
             authors = get_authors(entry["authors"], authors_mapping)
             genres = book_genres[book_id]
             if genres == set():
-                genres = "No information available"
+                genres = {"No information available"}
             tags = get_tags(entry["popular_shelves"])
             average_rating = get_average_rating(entry["average_rating"])
             ratings_count = get_ratings_count(entry["ratings_count"])
