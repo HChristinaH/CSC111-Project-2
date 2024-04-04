@@ -3,7 +3,7 @@ from gettingdata import genres_list
 import ttkbootstrap as ttk
 from gettingdata import books_to_display as books
 from gettingdata import tree
-from VScrollProper import ScrollingFrame
+from scroll_frame import ScrollingFrame
 from bookpage import saved_books_library
 
 
