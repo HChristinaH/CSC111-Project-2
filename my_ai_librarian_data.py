@@ -243,7 +243,7 @@ class Tree:
 
         Preconditions:
             - sort_by in {"Similarity (decreasing)", "Popularity (decreasing)", "Average rating (high to low)",
-                         "Author (A-Z)", "Publication year (increasing)"}
+                         "Author (A-Z)", "Publication year (increasing)", "Title (A-Z)"}
         """
         if height == 0:
             # Check indices 0 - 4 for rating
@@ -438,9 +438,8 @@ def sort_books_by(book_list: list[Book], sort_by: str, library: list[Book]) -> N
     This method mutates book_list.
     If sort_by == 'Author (A-Z)', sorts by the first author's full name.
     Preconditions:
-        - sort_by != "Similarity (decreasing)" or library != set()
         - sort_by in {"Similarity (decreasing)", "Popularity (decreasing)", "Average rating (high to low)",
-                     "Author (A-Z)", "Publication year (increasing)"}
+                     "Author (A-Z)", "Publication year (increasing)", "Title (A-Z)"}
     """
     if sort_by == 'Similarity (decreasing)':
         sort_by_similarity(book_list, library)
@@ -453,6 +452,9 @@ def sort_books_by(book_list: list[Book], sort_by: str, library: list[Book]) -> N
 
     elif sort_by == 'Author (A-Z)':
         book_list.sort(key=lambda book: book.authors[0])
+
+    elif sort_by == "Title (A-Z)":
+        book_list.sort(key=lambda book: book.title)
 
     else:
         book_list.sort(key=lambda book: book.pub_year)
@@ -516,7 +518,7 @@ def load_tree(genre_list: list[str], books: set[Book]) -> Tree:
 
 # if __name__ == '__main__':
 #     import python_ta
-# 
+#
 #     python_ta.check_all(config={
 #         'max-line-length': 120,
 #     })
