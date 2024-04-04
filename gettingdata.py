@@ -1,4 +1,7 @@
-from my_librarian_manager_data import *
+"""This file loads all the data from my_library_manager.py. Exported to the other files 
+Copyright 2024 Areesha Abidi
+"""
+from my_library_manager_data import *
 
 genres = get_genres("data/goodreads_book_genres_initial.json")
 genres_list = genres[0]
