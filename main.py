@@ -1,3 +1,6 @@
+"""This file creates the root window and imports the frames from the files
+Copyright 2024 Areesha Abidi
+"""
 import tkinter as tk
 from main_frame1 import Frame1Main
 from main_frame2 import Frame2Main
