@@ -16,34 +16,33 @@ class Book:
     #     - genres: a set of genres that the book has been shelved under
     #     - tags: a set of all shelves of the book
     #     - average_rating: the average rating of a book from 1.0 to 5.0
-    #         -1 if there is no information
     #     - ratings_count: the number of ratings
-    #         -1 if there is no information
     #     - length: the length of a book
     #         1 is short, 0 - 200 pages(inclusive)
     #         2 is medium, 201 - 500 pages(inclusive)
     #         3 is long, 501 + pages.
-    #         -1 if no information on number of pages
     #     - description: description of a book
     #     - pub_year: publication year of a book
     #     - book_url: link to book on GoodReads
     #     - image_url: link to JPEG image of book cover
+    # If any attribute is not provided, its value is "No information available"
 
     isbn: str
     title: str
-    authors: list[str]
-    genres: set[str]
-    tags: set[str]
-    average_rating: float
-    ratings_count: int
-    length: int
+    authors: list[str] | str
+    genres: set[str] | str
+    tags: set[str] | str
+    average_rating: float | str
+    ratings_count: int | str
+    length: int | str
     description: str
     pub_year: str
     book_url: str
     image_url: str
 
-    def __init__(self, isbn: str, title: str, authors: list[str], genres: set[str], tags: set[str],
-                 average_rating: float, ratings_count: int, length: int, description: str, pub_year: str,
+    def __init__(self, isbn: str, title: str, authors: list[str] | str, genres: set[str] | str,
+                 tags: set[str] | str, average_rating: float | str, ratings_count: int | str,
+                 length: int | str, description: str, pub_year: str,
                  book_url: str, image_url: str) -> None:
         self.isbn = isbn
         self.title = title
@@ -81,7 +80,7 @@ class Book:
         """
 
         if len(self.tags) == 0 or len(other.tags) == 0:
-            return 0
+            return 0.0
         else:
             shelves1 = set.union(self.tags, self.genres)
             shelves2 = set.union(other.tags, other.genres)
@@ -365,7 +364,7 @@ def load_books(book_genres: dict[str, set[str]], authors_mapping: dict[str, str]
         for line in file:
             entry = json.loads(line)
             book_id = entry["book_id"]
-            isbn = entry["isbn"]
+            isbn = get_isbn(entry["isbn"])
             title = entry["title"]
             authors = get_authors(entry["authors"], authors_mapping)
             genres = book_genres[book_id]
@@ -384,6 +383,15 @@ def load_books(book_genres: dict[str, set[str]], authors_mapping: dict[str, str]
     return books
 
 
+def get_isbn(data: str) -> str:
+    """Return the isbn of a book from the data given as string
+    """
+    if data == '':
+        return "No information available"
+    else:
+        return data
+
+
 def get_tags(data: list[dict[str, str]]) -> set[str]:
     """Return a set of shelf names from the popular shelves data of a book.
     An example data is: [{"count": "3", "name": "to-read"}, {"count": "1", "name": "p"}]
@@ -394,15 +402,15 @@ def get_tags(data: list[dict[str, str]]) -> set[str]:
     return tags
 
 
-def get_length(num_pages: str) -> 0:
+def get_length(num_pages: str) -> int | str:
     """Get the length of a book.
     0-200 (inclusive) returns length 0.
     201-500 (inclusive) returns length 1.
     501 + returns length 2
-    Return -1 if the number of pages is empty.
+    Return "No information available" if the number of pages is empty.
     """
     if num_pages == '':
-        return -1
+        return "No information available"
 
     num_pages = int(num_pages)
 
@@ -414,22 +422,22 @@ def get_length(num_pages: str) -> 0:
         return 3
 
 
-def get_average_rating(data: str) -> float:
+def get_average_rating(data: str) -> float | str:
     """Return the average rating of a book from the given data.
     Data is the average_rating of the book in string format.
     """
     if data == '':
-        return -1.0
+        return "No information available"
     else:
         return float(data)
 
 
-def get_ratings_count(data: str) -> int:
+def get_ratings_count(data: str) -> int | str:
     """Return the ratings count of a book from the given data.
     Data is the ratings_count of the book in string format.
     """
     if data == '':
-        return -1
+        return "No information available"
     else:
         return int(data)
 
@@ -460,12 +468,13 @@ def sort_books_by(book_list: list[Book], sort_by: str, library: list[Book]) -> N
 
 
 def sort_by_similarity(book_list: list[Book], library: list[Book]) -> None:
-    """Sort books by descending average similarity to books in the library.
+    """Sort book list by descending average similarity to books in the library.
     This method mutates book_list.
     """
     similarity_score_map = []  # each element is a list containing book and its average similarity score to library
     for book in book_list:
-        similarity_score_map.append([book, book.average_similarity_score(library)])
+        if book not in library:
+            similarity_score_map.append([book, book.average_similarity_score(library)])
 
     similarity_score_map.sort(key=lambda x: x[1], reverse=True)
 
@@ -482,7 +491,7 @@ def get_authors(data: list[dict[str, str]], authors: dict[str, str]) -> list[str
         assert isinstance(author, dict)
         result.append(authors[author["author_id"]])
     if not result:
-        result.append('')
+        result.append("No information available")
     return result
 
 
