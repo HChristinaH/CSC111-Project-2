@@ -1,3 +1,7 @@
+"""This program loads all the data from my_library_manager_data.py. Exported to the other files for use
+Copyright 2024 Areesha Abidi
+"""
+
 import tkinter as tk
 from tkinter import ttk
 from PIL import ImageTk, Image
@@ -5,7 +9,7 @@ import requests
 from io import BytesIO
 import webbrowser
 from PIL.ImageTk import PhotoImage
-from my_librarian_manager_data import sort_books_by
+from my_library_manager_data import sort_books_by
 from gettingdata import books
 
 
