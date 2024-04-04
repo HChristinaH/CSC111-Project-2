@@ -489,7 +489,7 @@ def get_authors(data: list[dict[str, str]], authors: dict[str, str]) -> list[str
     return result
 
 
-def load_tree(genre_list: list[str], books: set[Book]) -> Tree:
+def load_tree(genre_list: list[str], books: list[Book]) -> Tree:
     """Create a tree from the list of genres and set of books.
     The tree stores information as follows:
         - Root is 0 (this would be Level 0)
