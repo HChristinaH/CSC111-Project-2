@@ -12,7 +12,7 @@ class Book:
     #     - isbn: unique ID of a book
     #     - title: title of the book
     #     - authors: list of authors
-    #         [''] if no information is available
+    #         ["No information available"] if no information is available
     #     - genres: a set of genres that the book has been shelved under
     #     - tags: a set of all shelves of the book
     #     - average_rating: the average rating of a book from 1.0 to 5.0
@@ -368,6 +368,8 @@ def load_books(book_genres: dict[str, set[str]], authors_mapping: dict[str, str]
             title = get_str(entry["title"])
             authors = get_authors(entry["authors"], authors_mapping)
             genres = book_genres[book_id]
+            if genres == set():
+                genres = "No information available"
             tags = get_tags(entry["popular_shelves"])
             average_rating = get_average_rating(entry["average_rating"])
             ratings_count = get_ratings_count(entry["ratings_count"])
