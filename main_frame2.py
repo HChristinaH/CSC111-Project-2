@@ -1,3 +1,7 @@
+"""This file creates the bottom part of the main window. Includes the filter and sorting options on the left and the books being displayed on the right
+
+Copyright 2024 Areesha Abidi
+"""
 from tkinter import messagebox
 from gettingdata import genres_list
 import ttkbootstrap as ttk
