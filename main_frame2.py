@@ -107,11 +107,11 @@ class Frame2Main(ttk.Frame):
         all_states.extend(self.ratings_drawer.get_checkbox_states())
         all_states.extend(self.book_length_drawer.get_checkbox_states())
         all_states.extend(self.genres_drawer.get_checkbox_states())
-        data = ttk.Label(self, text=f"{all_states}")
+        data = ttk.Label(self, text="")
         data.grid(row=5, column=0, sticky="w", padx=5, pady=5)
 
         sort_selection = self.sort_combo.get()
-        data2 = ttk.Label(self, text=f"{sort_selection}")
+        data2 = ttk.Label(self, text="")
         data2.grid(row=6, column=0, sticky="w", padx=5, pady=5)
 
         self.blank.destroy()
