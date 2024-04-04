@@ -62,18 +62,6 @@ class Book:
         """
         return self.title
 
-    def similar_books(self, library: set[Book]) -> list[Book]:
-        """Return a list of books in library ordered by decreasing similarity to self
-
-        Preconditions:
-            - self not in library"""
-        scores = []  # maps a book to its similarity score with self
-        for book in library:
-            scores.append([book, self.similarity_score(book)])
-        scores.sort(key=lambda x: x[1], reverse=True)
-
-        return [row[0] for row in scores]
-
     def similarity_score(self, other: Book) -> float:
         """Calculate the similarity score between self and other book based on its tags and genres.
         Similarity formula is calculated by common genres divided by total genres.
@@ -228,7 +216,7 @@ class Tree:
                 self._subtrees.append(tree)
                 tree.insert_sequence(sequence[1:])
 
-    def get_books_filter_sort(self, filter_sequence, sort_by: str, library: list[Book]) -> list[Book]:
+    def get_books_filter_sort(self, filter_sequence: list[int], sort_by: str, library: list[Book]) -> list[Book]:
         """Get a list of filtered and sorted books.
         Preconditions:
             - len(filter_sequence) == self.height() - 1
@@ -524,3 +512,11 @@ def load_tree(genre_list: list[str], books: set[Book]) -> Tree:
         book_tree.insert_sequence(sequence)
 
     return book_tree
+
+
+# if __name__ == '__main__':
+#     import python_ta
+# 
+#     python_ta.check_all(config={
+#         'max-line-length': 120,
+#     })
