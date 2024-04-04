@@ -1,4 +1,5 @@
-"""This program loads all the data from my_library_manager_data.py. Exported to the other files for use
+"""This file loads creates the book information page for each book. Also includes similar books.
+
 Copyright 2024 Areesha Abidi
 """
 
